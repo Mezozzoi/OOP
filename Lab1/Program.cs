@@ -16,9 +16,9 @@ namespace Lab1
             zxc.LoseGame(s1mple, (uint)random.Next(5, 30));
             s1mple.LoseGame(zxc, (uint)random.Next(5, 30));
 
-            zxc.getStats();
+            zxc.GetStats();
             Console.WriteLine();
-            s1mple.getStats();
+            s1mple.GetStats();
         }
     }
     class GameAccount
@@ -43,7 +43,7 @@ namespace Lab1
             AddGame(new Game(opponent, this, rating));
         }
 
-        public void AddGame(Game game)
+        public static void AddGame(Game game)
         {
             if (game.Winner == game.Loser) throw new ArgumentException("Opponent must be different from callable object");
             game.Winner.CurrentRating += game.Rating;
@@ -62,7 +62,7 @@ namespace Lab1
             game.Loser.GamesHistory.Add(game);
         }
 
-        public void getStats()
+        public void GetStats()
         {
             Console.WriteLine($"Username: {UserName}");
             Console.WriteLine($"Rating: {CurrentRating}");
@@ -89,7 +89,6 @@ namespace Lab1
                 Console.Write($"{(color == ConsoleColor.Green ? "+" + game.Rating : "-" + game.Rating), 6}");
                 Console.ResetColor();
                 Console.WriteLine(" |");
-
             }
 
             Console.WriteLine("--------------------------------------");

@@ -45,9 +45,9 @@ class ProductRepo : IRepository<ProductDto>
         return collection.FindSync(filter).First();
     }
 
-    public void Delete(ProductDto product)
+    public void Delete(ObjectId productId)
     {
-        BsonDocument filter = new BsonDocument { { "_id", product.Id } };
+        BsonDocument filter = new BsonDocument { { "_id", productId } };
         collection.DeleteOne(filter);
     }
 

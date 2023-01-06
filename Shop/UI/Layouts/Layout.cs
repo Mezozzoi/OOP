@@ -17,6 +17,8 @@ abstract class Layout
     {
         while (true)
         {
+            Console.WriteLine("Type \"q\" to exit");
+
             DisplayActions();
 
             Console.Write("Enter action number: ");

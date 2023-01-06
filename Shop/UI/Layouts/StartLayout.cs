@@ -21,6 +21,7 @@ class StartLayout : Layout
 
         while (true)
         {
+            Console.WriteLine("Type \"q\" to exit");
             Console.Write("Enter your login: ");
             string login = Console.ReadLine();
             if (login == "q") return this;
@@ -48,6 +49,7 @@ class StartLayout : Layout
 
         while (true)
         {
+            Console.WriteLine("Type \"q\" to exit");
             Console.Write("Enter your login: ");
             login = Console.ReadLine();
 

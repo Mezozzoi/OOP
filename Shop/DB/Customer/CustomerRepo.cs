@@ -45,9 +45,9 @@ public class CustomerRepo : IRepository<CustomerDto>
         return collection.FindSync(filter).First();
     }
 
-    public void Delete(CustomerDto customer)
+    public void Delete(ObjectId customerId)
     {
-        BsonDocument filter = new BsonDocument { { "_id", customer.Id } };
+        BsonDocument filter = new BsonDocument { { "_id", customerId } };
         collection.DeleteOne(filter);
     }
 

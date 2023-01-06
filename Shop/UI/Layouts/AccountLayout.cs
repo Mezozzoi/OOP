@@ -5,10 +5,16 @@ using System.Linq;
 class AccountLayout : Layout
 {
     public AccountLayout(Context context) : base(context) {
-        actions.Add("History", History);
-        actions.Add("Catalog", Catalog);
-        actions.Add("Add Balance", Balance);
-        actions.Add("Add Product", AddProduct);
+        if (context.customer.IsAdmin)
+        {
+            actions.Add("Add Product", AddProduct);
+            actions.Add("Edit Product Info", EditProduct);
+        } else
+        {
+            actions.Add("History", History);
+            actions.Add("Catalog", Catalog);
+            actions.Add("Add Balance", Balance);
+        }
 
         if (context.customer == null) Environment.Exit(0);
 
@@ -18,15 +24,23 @@ class AccountLayout : Layout
     public override Layout Init()
     {
         Console.Clear();
-        Console.WriteLine($"User: {context.customer.Login}");
-        Console.WriteLine($"Balance: {context.customer.Balance}₴");
+        if (context.customer.IsAdmin)
+        {
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine($"Admin: {context.customer.Login}");
+            Console.ResetColor();
+        } else
+        {
+            Console.WriteLine($"User: {context.customer.Login}");
+            Console.WriteLine($"Balance: {context.customer.Balance}₴");
+        }
         return base.Init();
     }
 
     Layout History()
     {
         Console.Clear();
-        
+
         Console.WriteLine($"|  #  |    Price   |");
         
         for (int i = 0; i < context.customer.History.Count; i++)
@@ -43,11 +57,12 @@ class AccountLayout : Layout
     Layout Catalog()
     {
         Console.Clear();
-        
+
         List<ProductDto> catalog = context.productService.Catalog();
 
         while (true)
         {
+            Console.WriteLine("Type \"q\" to exit");
             Console.WriteLine($"|  #  |    Price   |");
         
             for (int i = 1; i <= catalog.Count; i++)
@@ -89,6 +104,8 @@ class AccountLayout : Layout
 
         while (true)
         {
+            Console.WriteLine("Type \"q\" to exit");
+
             Console.WriteLine($"Balance: {context.customer.Balance}₴");
             Console.Write("Enter amount to add: ");
             string input = Console.ReadLine();
@@ -114,6 +131,7 @@ class AccountLayout : Layout
 
         while (true)
         {
+            Console.WriteLine("Type \"q\" to exit");
             Console.Write("Enter product title: ");
             string title = Console.ReadLine();
             if (title == "q") return this;
@@ -127,7 +145,7 @@ class AccountLayout : Layout
             if (description == "q") return this;
             
             int priceInt = 0;
-            if (int.TryParse(price, out priceInt) && title != "" && context.productService.GetByTitle(title) == null)
+            if (int.TryParse(price, out priceInt) && priceInt >= 0 && title != "" && context.productService.GetByTitle(title) == null)
             {
                 Console.Clear();
                 context.productService.Add(title, priceInt, description);
@@ -137,6 +155,78 @@ class AccountLayout : Layout
             {
                 Console.Clear();
                 Utils.PrintError("Wrong product info");
+            }
+        }
+    }
+
+    Layout EditProduct()
+    {
+        Console.Clear();
+
+        List<ProductDto> catalog = context.productService.Catalog();
+
+        while (true)
+        {
+            Console.WriteLine("Type \"q\" to exit");
+            Console.WriteLine($"|  #  |    Price   |");
+
+            for (int i = 1; i <= catalog.Count; i++)
+            {
+                ProductDto product = catalog.ElementAt(i - 1);
+                Console.WriteLine($"| {i,3} | {product.Price,9}₴ | {product.Title} : {product.Description}");
+            }
+
+            Console.Write("Enter product number to edit: ");
+            string input = Console.ReadLine();
+            if (input == "q") return this;
+
+            int n = 1;
+            if (int.TryParse(input, out n) && n > 0 && n <= catalog.Count)
+            {
+                ProductDto product = catalog.ElementAt(n - 1);
+
+                Console.Clear();
+
+                while (true)
+                {
+                    Console.WriteLine($"You are editing product:\n{product.Price}₴ | {product.Title} : {product.Description}");
+
+                    Console.Write("Enter new title: ");
+                    string title = Console.ReadLine();
+                    if (title == "q") break;
+
+                    Console.Write("Enter new price: ");
+                    string price = Console.ReadLine();
+                    if (price == "q") break;
+
+                    Console.Write("Enter new description: ");
+                    string description = Console.ReadLine();
+                    if (description == "q") break;
+
+                    int priceInt = 0;
+                    if (int.TryParse(price, out priceInt) && priceInt >= 0 && title != "" && (title == product.Title || context.productService.GetByTitle(title) == null))
+                    {
+                        Console.Clear();
+                        product.Title = title;
+                        product.Price = priceInt;
+                        product.Description = description;
+                        context.productService.Update(product);
+                        Console.WriteLine($"Product \"{title}\" edited successfully");
+                        break;
+                    }
+                    else
+                    {
+                        Console.Clear();
+                        Utils.PrintError("Wrong product info");
+                    }
+                }
+
+                Console.Clear();
+            }
+            else
+            {
+                Console.Clear();
+                Utils.PrintError("Wrong number");
             }
         }
     }

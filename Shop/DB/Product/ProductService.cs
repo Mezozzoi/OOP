@@ -29,4 +29,18 @@ class ProductService
     {
         return (List<ProductDto>)productRepo.List();
     }
+
+    public void Delete(ObjectId productId)
+    {
+        if (productRepo.GetById(productId) == null)
+            throw new ArgumentException("Invalid product id");
+        productRepo.Delete(productId);
+    }
+
+    public ProductDto Update(ProductDto product)
+    {
+        if (productRepo.GetById(product.Id) == null)
+            throw new ArgumentException("Invalid product");
+        return productRepo.Update(product);
+    }
 }
